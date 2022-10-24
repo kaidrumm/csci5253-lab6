@@ -1,3 +1,4 @@
+[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-c66648af7eb3fe8bc4f294546bfd86ef473780cde1dea487d3c4ff354943c9ae.svg)](https://classroom.github.com/online_ide?assignment_repo_id=9051713&assignment_repo_type=AssignmentRepo)
 # Lab6 - Comparing REST and gRPC remote procedure calls.
 This lab designed to help you understand the programmatic and performance difference between REST and gRPC APi's. You will develop a REST and a gRPC api then compare the performance for latency / bandwidth.
 
