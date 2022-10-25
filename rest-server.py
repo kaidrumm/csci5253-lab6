@@ -31,7 +31,6 @@ def add(a,b):
     response_pickled = jsonpickle.encode(response)
     return Response(response=response_pickled, status=200, mimetype="application/json")
 
-# route http posts to this method
 @app.route('/api/rawimage', methods=['POST'])
 def rawimage():
     r = request
@@ -48,17 +47,46 @@ def rawimage():
         response = { 'width' : 0, 'height' : 0}
     # encode response using jsonpickle
     response_pickled = jsonpickle.encode(response)
-
     return Response(response=response_pickled, status=200, mimetype="application/json")
 
 @app.route('/api/dotproduct', methods=['POST'])
 def dotproduct():
-    pass
+    r = request
+    data = jsonpickle.decode(r.data)
+    v1 = data["a"]
+    v2 = data["b"]
+    if(len(v1) != len(v2)):
+        response = {"Invalid vectors"}
+        return Response(response=response, status=400, mimetype="application/text")
+    sum = 0
+    for i in range(len(v1)):
+        sum += v1[i] * v2[i]
+    response = {"dotProduct": sum}
+    response_pickled = jsonpickle.encode(response)
+    return Response(response=response_pickled, status = 200, mimetype="application/json")
 
-# route http posts to this method
 @app.route('/api/jsonimage', methods=['POST'])
 def jsonimage():
-    pass
+    r = request
+    # convert the data to a PIL image type so we can extract dimensions
+    try:
+        imgText = jsonpickle.decode(r.data)
+        #imgBytes = io.BytesIO()
+        imgBytes = base64.b64decode(imgText["image"])
+        imgIO = io.BytesIO(imgBytes)
+        img = Image.open(imgIO)
+    # build a response dict to send back to client
+        response = {
+            'width' : img.size[0],
+            'height' : img.size[1]
+            }
+    except Exception as e:
+        print(e)
+        response = { 'width' : 0, 'height' : 0}
+    # encode response using jsonpickle
+    response_pickled = jsonpickle.encode(response)
+    return Response(response=response_pickled, status=200, mimetype="application/json")
+
 
 # start flask app
 app.run(host="0.0.0.0", port=5000)
