@@ -1,14 +1,15 @@
-import logging
 import random
 import base64
+import sys
+import time
 from turtle import dot
 
 import grpc
 import service_pb2
 import service_pb2_grpc
 
-def service_add(stub, a, b):
-    sum = stub.add(service_pb2.addMsg(a=a, b=b))
+def service_add(stub):
+    sum = stub.add(service_pb2.addMsg(a=5, b=10))
     print(f"Found {sum}")
     return sum
 
@@ -44,5 +45,45 @@ def run():
         service_rawimage(stub)
 
 if __name__ == '__main__':
-    logging.basicConfig()
-    run()
+
+    if len(sys.argv) < 3:
+        print(f"Usage: {sys.argv[0]} <server ip> <cmd> <reps>")
+        print(f"where <cmd> is one of add, rawImage, sum or jsonImage")
+        print(f"and <reps> is the integer number of repititions for measurement")
+    
+    host = sys.argv[1]
+    cmd = sys.argv[2]
+    reps = int(sys.argv[3])
+
+    addr = f"{host}:50051"
+    print(f"Running {reps} reps against {addr}")
+
+    with grpc.insecure_channel(addr) as channel:
+        stub = service_pb2_grpc.ServerStub(channel)
+
+        if cmd == 'rawImage':
+            start = time.perf_counter()
+            for x in range(reps):
+                service_rawimage(stub)
+            delta = ((time.perf_counter() - start)/reps)*1000
+            print("Took", delta, "ms per operation")
+        elif cmd == 'add':
+            start = time.perf_counter()
+            for x in range(reps):
+                service_add(stub)
+            delta = ((time.perf_counter() - start)/reps)*1000
+            print("Took", delta, "ms per operation")
+        elif cmd == 'jsonImage':
+            start = time.perf_counter()
+            for x in range(reps):
+                service_jsonimage(stub)
+            delta = ((time.perf_counter() - start)/reps)*1000
+            print("Took", delta, "ms per operation")
+        elif cmd == 'dotProduct':
+            start = time.perf_counter()
+            for x in range(reps):
+                service_dot(stub)
+            delta = ((time.perf_counter() - start)/reps)*1000
+            print("Took", delta, "ms per operation")
+        else:
+            print("Unknown option", cmd)
