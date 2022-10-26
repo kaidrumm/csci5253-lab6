@@ -1,5 +1,8 @@
 from concurrent import futures
 import logging
+import base64
+import io
+from PIL import Image
 
 import grpc
 import service_pb2
@@ -23,12 +26,19 @@ class ServerServicer(service_pb2_grpc.ServerServicer):
         return service_pb2.dotProductReply(dotproduct = sum)
 
     def rawimage(self, request, context):
-
-        raise NotImplementedError('Method not implemented!')
+        imgBytes = request.img
+        imgIO = io.BytesIO(imgBytes)
+        img = Image.open(imgIO)
+        response = service_pb2.imageReply(width=img.size[0], height=img.size[1])
+        return response
 
     def jsonimage(self, request, context):
-
-        raise NotImplementedError('Method not implemented!')
+        data = request.img
+        imgBytes = base64.b64decode(data)
+        imgIO = io.BytesIO(imgBytes)
+        img = Image.open(imgIO)
+        response = service_pb2.imageReply(width=img.size[0], height=img.size[1])
+        return response
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
