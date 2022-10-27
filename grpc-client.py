@@ -50,7 +50,7 @@ def run():
 
 if __name__ == '__main__':
 
-    if len(sys.argv) < 4:
+    if len(sys.argv) < 5:
         print(f"Usage: {sys.argv[0]} <server ip> <cmd> <reps>")
         print(f"where <cmd> is one of add, rawImage, sum or jsonImage")
         print(f"and <reps> is the integer number of repititions for measurement")
