@@ -59,7 +59,7 @@ if __name__ == '__main__':
     host = sys.argv[1]
     cmd = sys.argv[2]
     reps = int(sys.argv[3])
-    debug = int(sys.arv[4])
+    debug = int(sys.argv[4])
 
     addr = f"{host}:50051"
     print(f"Running {reps} reps against {addr}")
