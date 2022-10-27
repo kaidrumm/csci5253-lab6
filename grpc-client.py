@@ -8,12 +8,13 @@ import grpc
 import service_pb2
 import service_pb2_grpc
 
-def service_add(stub):
+def service_add(stub, debug):
     sum = stub.add(service_pb2.addMsg(a=5, b=10))
-    print(f"Found {sum}")
+    if debug:
+        print(f"Found {sum}")
     return sum
 
-def service_dot(stub):
+def service_dot(stub, debug):
     v1 = []
     v2 = []
     for n in range(100):
@@ -21,20 +22,23 @@ def service_dot(stub):
         v2.append(random.random())
 
     dot = stub.dotproduct(service_pb2.dotProductMsg(a=v1, b=v2))
-    print(f"Found {dot}")
+    if debug:
+        print(f"Found {dot}")
 
-def service_jsonimage(stub):
-    img = open('Flatirons_Winter_sunrise_edit_2.jpg', 'rb').read()
+def service_jsonimage(stub, debug):
+    img = open('Flatirons_Winter_Sunrise_edit_2.jpg', 'rb').read()
     img_encoded = base64.b64encode(img)
     request = service_pb2.jsonImageMsg(img=img_encoded)
     size = stub.jsonimage(request)
-    print(f"Found {size}")
+    if debug:
+        print(f"Found {size}")
 
-def service_rawimage(stub):
-    img = open('Flatirons_Winter_sunrise_edit_2.jpg', 'rb').read()
+def service_rawimage(stub, debug):
+    img = open('Flatirons_Winter_Sunrise_edit_2.jpg', 'rb').read()
     request = service_pb2.rawImageMsg(img=img)
     size = stub.rawimage(request)
-    print(f"Found {size}")
+    if debug:
+        print(f"Found {size}")
 
 def run():
     with grpc.insecure_channel('localhost:50051') as channel:
@@ -46,14 +50,16 @@ def run():
 
 if __name__ == '__main__':
 
-    if len(sys.argv) < 3:
+    if len(sys.argv) < 4:
         print(f"Usage: {sys.argv[0]} <server ip> <cmd> <reps>")
         print(f"where <cmd> is one of add, rawImage, sum or jsonImage")
         print(f"and <reps> is the integer number of repititions for measurement")
-    
+        print(f"last parameter <debug> 1 for print, 0 for no")
+
     host = sys.argv[1]
     cmd = sys.argv[2]
     reps = int(sys.argv[3])
+    debug = int(sys.arv[4])
 
     addr = f"{host}:50051"
     print(f"Running {reps} reps against {addr}")
@@ -64,25 +70,25 @@ if __name__ == '__main__':
         if cmd == 'rawImage':
             start = time.perf_counter()
             for x in range(reps):
-                service_rawimage(stub)
+                service_rawimage(stub, debug)
             delta = ((time.perf_counter() - start)/reps)*1000
             print("Took", delta, "ms per operation")
         elif cmd == 'add':
             start = time.perf_counter()
             for x in range(reps):
-                service_add(stub)
+                service_add(stub, debug)
             delta = ((time.perf_counter() - start)/reps)*1000
             print("Took", delta, "ms per operation")
         elif cmd == 'jsonImage':
             start = time.perf_counter()
             for x in range(reps):
-                service_jsonimage(stub)
+                service_jsonimage(stub, debug)
             delta = ((time.perf_counter() - start)/reps)*1000
             print("Took", delta, "ms per operation")
         elif cmd == 'dotProduct':
             start = time.perf_counter()
             for x in range(reps):
-                service_dot(stub)
+                service_dot(stub, debug)
             delta = ((time.perf_counter() - start)/reps)*1000
             print("Took", delta, "ms per operation")
         else:
